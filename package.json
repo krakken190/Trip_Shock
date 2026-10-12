@@ -1,0 +1,39 @@
+{
+  "name": "tripshock",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Dependency-aware what-if simulator for trips",
+  "scripts": {
+    "dev": "cross-env NODE_OPTIONS=--disable-warning=ExperimentalWarning next dev -p 3000",
+    "build": "next build",
+    "start": "cross-env NODE_OPTIONS=--disable-warning=ExperimentalWarning next start -p 3000",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:live": "cross-env TRIPSHOCK_LIVE_TEST=1 vitest run tests/live",
+    "e2e": "playwright test"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.48.0",
+    "next": "^16.3.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "cross-env": "^10.1.0",
+    "postcss": "^8.5.28",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.3",
+    "vitest": "^5.0.1"
+  },
+  "engines": {
+    "node": ">=22.13"
+  }
+}

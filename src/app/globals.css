@@ -1,0 +1,101 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, SFMono-Regular, monospace;
+
+  --color-canvas: #f7f7f5;
+  --color-surface: #ffffff;
+  --color-sunken: #f2f2ef;
+  --color-line: #e6e5e1;
+  --color-line-strong: #d6d4ce;
+  --color-ink: #17171a;
+  --color-ink-2: #45454d;
+  --color-muted: #75757e;
+  --color-faint: #a3a3ab;
+
+  --color-brand: #4f46e5;
+  --color-brand-ink: #3730a3;
+  --color-brand-soft: #eef0ff;
+
+  /* Diff semantics */
+  --color-up: #d92d4a; /* price increase */
+  --color-up-soft: #fff0f2;
+  --color-down: #0b8a5f; /* price decrease */
+  --color-down-soft: #eafaf3;
+  --color-moved: #2563eb; /* structural change */
+  --color-moved-soft: #eef4ff;
+  --color-warn: #b45309;
+  --color-warn-soft: #fff7e8;
+  --color-error: #c2262e;
+  --color-error-soft: #fef1f1;
+
+  /* Node kinds */
+  --color-k-flight: #2563eb;
+  --color-k-stay: #7c3aed;
+  --color-k-activity: #db2777;
+  --color-k-transfer: #0d9488;
+
+  --shadow-card: 0 1px 2px rgb(16 16 24 / 0.04), 0 1px 1px rgb(16 16 24 / 0.02);
+  --shadow-pop: 0 12px 32px -8px rgb(16 16 24 / 0.18), 0 2px 6px rgb(16 16 24 / 0.06);
+
+  --animate-flow: flow 1.2s linear infinite;
+  --animate-fade-in: fade-in 0.18s ease-out;
+  --animate-slide-in: slide-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  --animate-rise: rise 0.28s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+
+  @keyframes flow {
+    to {
+      stroke-dashoffset: -16;
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+  }
+  @keyframes slide-in {
+    from {
+      transform: translateX(24px);
+      opacity: 0;
+    }
+  }
+  @keyframes rise {
+    from {
+      transform: translateY(6px);
+      opacity: 0;
+    }
+  }
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-feature-settings: "cv11", "ss01";
+  }
+  ::selection {
+    background: #c7d2fe;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-brand);
+    outline-offset: 2px;
+  }
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@utility bg-dots {
+  background-image: radial-gradient(circle at 1px 1px, rgb(16 16 24 / 0.07) 1px, transparent 0);
+  background-size: 18px 18px;
+}
+
+@utility stripes-unknown {
+  background-image: repeating-linear-gradient(-45deg, transparent 0 6px, rgb(16 16 24 / 0.04) 6px 12px);
+}
