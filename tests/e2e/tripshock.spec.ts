@@ -99,3 +99,38 @@ test("E2E-05 revert: deleting a scenario leaves the baseline unchanged", async (
   expect(after.trip).toEqual(before.trip);
   expect(after.scenarios).toHaveLength(0);
 });
+
+test("E2E-06 finalize: adopt a what-if and download the itinerary PDF", async ({ page, request }) => {
+  const tripId = await loadSample(page);
+  await runWhatIf(page, "leave one day later");
+
+  await page.getByTestId("finalize-trip").click();
+  const dialog = page.getByRole("dialog", { name: "Finalize trip" });
+  // The scenario on screen is preselected, with a preview of the plan it produces
+  await expect(dialog.getByRole("radio", { checked: true })).toContainText("Shift whole trip +1 day");
+  const preview = dialog.getByTestId("final-preview");
+  await expect(preview).toContainText("Nov 11–18 · 7 nights");
+  await expect(preview).toContainText("DEL → SIN → DPS → DEL");
+  // The museum lands on its (simulated) closed day
+  await expect(preview).toContainText(/conflicts? to check before booking/);
+  await expect(dialog).toContainText("Simulated prices");
+
+  const [download] = await Promise.all([page.waitForEvent("download"), dialog.getByTestId("download-itinerary").click()]);
+  expect(download.suggestedFilename()).toBe("Singapore & Bali - itinerary.pdf");
+  const file = await download.path();
+  const { readFileSync } = await import("node:fs");
+  const bytes = readFileSync(file);
+  expect(bytes.subarray(0, 5).toString()).toBe("%PDF-");
+  expect(bytes.length).toBeGreaterThan(20_000);
+  await expect(page.getByText("Itinerary downloaded")).toBeVisible();
+  await expect(dialog).toBeHidden();
+
+  // Switching to the baseline previews the original dates
+  await page.getByTestId("finalize-trip").click();
+  await page.getByTestId("final-version-baseline").click();
+  await expect(page.getByTestId("final-preview")).toContainText("Nov 10–17 · 7 nights");
+
+  // Unknown scenario ids are rejected rather than silently falling back to the baseline
+  const bad = await request.get(`/api/trips/${tripId}/itinerary?scenario=sc_nope`);
+  expect(bad.status()).toBe(404);
+});

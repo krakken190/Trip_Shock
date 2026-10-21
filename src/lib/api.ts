@@ -1,8 +1,9 @@
 import type { DraftPlan } from "@/domain/trip-draft";
 import type { Observation, PlaceCandidate, ScenarioInput, Trip, TripInput } from "@/domain/types";
+import type { Itinerary } from "@/server/itinerary";
 import type { BaselineView, ScenarioSummary, ScenarioView } from "@/server/service";
 
-export type { BaselineView, ScenarioSummary, ScenarioView };
+export type { BaselineView, Itinerary, ScenarioSummary, ScenarioView };
 
 export interface TripListItem {
   id: string;
@@ -72,4 +73,13 @@ export const api = {
   suggestPlaces: (query: string) =>
     call<{ query: string; provider: "serpapi" | "mock"; observedAt: string; candidates: PlaceCandidate[] }>("POST", "/api/places/suggest", { query }),
   setFaults: (f: Record<string, string | undefined>) => call("POST", "/api/dev/faults", f),
+  itinerary: (tripId: string, scenarioId?: string | null) => call<Itinerary>("GET", itineraryUrl(tripId, scenarioId, "json")),
 };
+
+export function itineraryUrl(tripId: string, scenarioId?: string | null, format: "pdf" | "json" = "pdf") {
+  const q = new URLSearchParams();
+  if (scenarioId) q.set("scenario", scenarioId);
+  if (format === "json") q.set("format", "json");
+  const qs = q.toString();
+  return `/api/trips/${tripId}/itinerary${qs ? `?${qs}` : ""}`;
+}

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Dependency-aware what-if simulator for trips",
+  "license": "MIT",
   "scripts": {
     "dev": "cross-env NODE_OPTIONS=--disable-warning=ExperimentalWarning next dev -p 3000",
     "build": "next build",
@@ -14,7 +15,9 @@
     "e2e": "playwright test"
   },
   "dependencies": {
+    "@react-pdf/renderer": "^4.9.0",
     "clsx": "^2.1.1",
+    "geist": "^1.8.1",
     "lucide-react": "^1.48.0",
     "next": "^16.3.6",
     "react": "^19.3.0",

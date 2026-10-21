@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, GitCompareArrows, Network, RefreshCw, Settings2, Trash2, Users } from "lucide-react";
+import { CalendarDays, FileCheck2, GitCompareArrows, Network, RefreshCw, Settings2, Trash2, Users } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { airportCity } from "@/domain/airports";
@@ -11,6 +11,7 @@ import { api, type BaselineView } from "@/lib/api";
 import { plural } from "@/lib/format";
 import { AppHeader } from "./app-header";
 import { BaselineTab } from "./baseline-tab";
+import { FinalizeDialog } from "./finalize-dialog";
 import { GraphTab } from "./graph-tab";
 import { ScenarioTab } from "./scenario-tab";
 import { Button, cx, Dialog, EmptyState, Field, Input, Skeleton, useToast } from "./ui";
@@ -26,6 +27,7 @@ export function Workspace({ id }: { id: string }) {
   const [notFound, setNotFound] = useState(false);
   const [refreshing, setRefreshing] = useState<Set<string>>(new Set());
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [finalizeOpen, setFinalizeOpen] = useState(false);
   const [draftPrompt, setDraftPrompt] = useState<string | null>(null);
 
   const tab = (search.get("tab") as Tab) || "baseline";
@@ -160,12 +162,21 @@ export function Workspace({ id }: { id: string }) {
                 </>
               )}
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button size="sm" variant="ghost" icon={<Settings2 className="size-3.5" />} onClick={() => setSettingsOpen(true)} disabled={!trip}>
                 Trip settings
               </Button>
               <Button size="sm" icon={<RefreshCw className={cx("size-3.5", pricing && "animate-spin")} />} onClick={() => refresh()} disabled={!trip || pricing || !trip.nodes.length}>
-                {pricing ? "Searching…" : "Refresh baseline prices"}
+                {pricing ? (
+                  "Searching…"
+                ) : (
+                  <>
+                    Refresh <span className="hidden sm:inline">baseline</span> prices
+                  </>
+                )}
+              </Button>
+              <Button size="sm" variant="primary" icon={<FileCheck2 className="size-3.5" />} onClick={() => setFinalizeOpen(true)} disabled={!trip || pricing || !trip.nodes.length} data-testid="finalize-trip">
+                Finalize trip
               </Button>
             </div>
           </div>
@@ -234,6 +245,16 @@ export function Workspace({ id }: { id: string }) {
           <GraphTab view={view} scenarioId={scenarioId} onSelect={(s) => navigate({ s })} />
         )}
       </main>
+
+      {view && (
+        <FinalizeDialog
+          open={finalizeOpen}
+          onClose={() => setFinalizeOpen(false)}
+          view={view}
+          initialScenarioId={tab === "whatif" ? scenarioId : null}
+          onRefreshBaseline={() => refresh()}
+        />
+      )}
 
       {trip && (
         <TripSettings

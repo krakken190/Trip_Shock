@@ -12,6 +12,7 @@
   <img alt="SerpApi" src="https://img.shields.io/badge/data-SerpApi-5b4fe9" />
   <img alt="Node" src="https://img.shields.io/badge/node-%E2%89%A522.13-339933?logo=nodedotjs&logoColor=white" />
   <img alt="Tests" src="https://img.shields.io/badge/tests-vitest%20%2B%20playwright-6e9f18" />
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue" /></a>
 </p>
 
 ---
@@ -96,6 +97,15 @@ Restart `npm run dev` after changing `.env.local`.
    TripShock shows how it interpreted your request before running. Choose a policy: **Push later items** (later items shift too) or **Keep later dates** (the change is absorbed by the hotel stay).
 5. **Read the diff**: moved items, per-item price changes, the observed total change, conflicts (e.g. a fixed item that couldn't move, or an attraction closed that day) and unknowns.
 6. **Save scenarios** and come back later. They are recomputed against your current baseline and can be refreshed for new prices.
+7. **Finalize the trip.** Click **Finalize trip**, choose the version you're going with (the baseline or any saved what-if), and download a PDF itinerary. Before you download, a readiness check flags missing prices, conflicts and prices older than 6 hours. The PDF contains:
+   - a cover with dates, travellers and the chosen version (with its saving or extra cost vs the baseline),
+   - a route graphic with nights per city,
+   - a "trip at a glance" timeline of every item across the days,
+   - a cost breakdown chart and the biggest items,
+   - a day-by-day plan with flight numbers and times, hotel rates, opening hours and overnight stays,
+   - a price-source table with engine, observation time and evidence id for every price.
+
+   📄 **[See a sample itinerary PDF](docs/sample-itinerary.pdf)**: the Delhi → Singapore → Bali demo trip with the "leave one day later" what-if adopted, using live SerpApi prices.
 
 ## Describe your trip (voice or text)
 
@@ -160,6 +170,8 @@ src/
     db.ts / repo.ts  SQLite (trips, scenarios, observations, settings)
     refresh.ts       observe nodes: cache → provider → evidence record
     service.ts       baseline & scenario views, API use-cases
+    itinerary.ts     finalized plan → day-by-day itinerary + cost breakdown
+    itinerary-pdf.tsx  PDF rendering (@react-pdf/renderer, Geist font)
   app/api/       Route handlers (thin)
   components/    UI
 ```
@@ -195,6 +207,7 @@ GET    /api/scenarios/{id}            full scenario view
 GET    /api/scenarios/{id}/diff       { aggregate, fields, conflicts }
 POST   /api/scenarios/{id}/refresh    { force? } — re-search affected nodes
 DELETE /api/scenarios/{id}
+GET    /api/trips/{id}/itinerary      ?scenario={id}&format=pdf|json — finalized itinerary (PDF download, or JSON preview)
 GET    /api/evidence/{id}             observation + trimmed provider metadata
 POST   /api/dev/faults                mock only: { flights|hotels|places: "error"|"empty" }
 ```
@@ -210,7 +223,7 @@ curl -X POST localhost:3000/api/trips/<id>/scenarios -H 'content-type: applicati
 
 ```bash
 npm test          # domain + service tests (incl. spec E2E-01…05 at the service layer)
-npm run e2e       # Playwright UI tests for E2E-01…05 (builds and starts on :3100)
+npm run e2e       # Playwright UI tests for E2E-01…06 (06 = finalize + PDF download) (builds and starts on :3100)
 npm run test:live # opt-in live SerpApi test — needs SERPAPI_API_KEY, spends credits
 ```
 
@@ -233,3 +246,23 @@ npm run test:live # opt-in live SerpApi test — needs SERPAPI_API_KEY, spends c
 - Transfers have no data source; they carry user estimates only.
 - Not yet built: flexible-date deal suggestions (Google Flights Deals / Travel Explore), a "cheapest shift within ±N days" optimizer, and multi-scenario comparison.
 - Weather is out of scope, per the spec.
+
+## Contributing
+
+Contributions are welcome: bug reports, fixes, docs and new features.
+
+1. Open an issue first for anything bigger than a small fix, so we can agree on the approach.
+2. Fork the repo and create a branch from `main` (`feat/…`, `fix/…`, `docs/…`).
+3. Develop on the mock provider. No API key is needed, and the tests never spend SerpApi credits.
+4. Add tests for your change, then make sure `npm run typecheck`, `npm test` and `npm run e2e` all pass.
+5. Open a pull request that explains the problem, the fix and how you tested it.
+
+See **[CONTRIBUTING.md](CONTRIBUTING.md)** for the full guide, including how the code is organised and the honesty rules every change has to keep.
+
+## Acknowledgements
+
+Built for the [SerpApi](https://serpapi.com) India Hackathon 2026, where it was selected as the Travel & Local Discovery track winner. Thanks to the SerpApi team for running it.
+
+## License
+
+TripShock is released under the [MIT License](LICENSE). You're free to use, modify and distribute it, as long as the copyright notice is kept.
